@@ -299,6 +299,11 @@ class RoIHeads(nn.Module):
             # print(f"{predictions_to_save.shape=}")
             # print(f"{scores_to_save.shape=}")
             height, width = image_shapes[0]
+            predictions_to_save[:, 0] = (proposals_to_save[:, 0] + predictions_to_save[:, 0]) / width
+            predictions_to_save[:, 1] = (proposals_to_save[:, 1] + predictions_to_save[:, 1]) / height
+            predictions_to_save[:, 2] = (proposals_to_save[:, 2] + predictions_to_save[:, 2]) / width
+            predictions_to_save[:, 3] = (proposals_to_save[:, 3] + predictions_to_save[:, 3]) / height
+            
             proposals_to_save[:, 0] = proposals_to_save[:, 0] / width
             proposals_to_save[:, 1] = proposals_to_save[:, 1] / height
             proposals_to_save[:, 2] = proposals_to_save[:, 2] / width

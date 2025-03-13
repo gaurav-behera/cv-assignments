@@ -173,7 +173,7 @@ def load_model_and_dataset(args):
     if device == 'cuda':
         torch.cuda.manual_seed_all(seed)
 
-    st = SceneTextDataset('test', root_dir=dataset_config['root_dir'])
+    st = SceneTextDataset("test", root_dir=dataset_config['root_dir'])
     test_dataset = DataLoader(st, batch_size=1, shuffle=False)
 
     faster_rcnn_model = detection.fasterrcnn_resnet50_fpn(pretrained=True,
@@ -184,6 +184,8 @@ def load_model_and_dataset(args):
     faster_rcnn_model.roi_heads.box_predictor = FastRCNNPredictor(
         faster_rcnn_model.roi_heads.box_predictor.cls_score.in_features,
         num_classes=dataset_config['num_classes'])
+    faster_rcnn_model.rpn.val = False
+    faster_rcnn_model.roi_heads.val = False
 
     faster_rcnn_model.eval()
     faster_rcnn_model.to(device)

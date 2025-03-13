@@ -11,10 +11,9 @@ from torch.utils.data.dataloader import DataLoader
 
 import detection
 from detection.faster_rcnn import FastRCNNPredictor
-from detection.anchor_utils import AnchorGenerator
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+torch.cuda.set_per_process_memory_fraction(0.8, device=0)
 
 def collate_function(data):
     return tuple(zip(*data))
@@ -43,9 +42,9 @@ def train(args):
 
     st = SceneTextDataset("train", root_dir=dataset_config["root_dir"])
     st_val = SceneTextDataset("val", root_dir=dataset_config["root_dir"])
-    
+
     train_dataset = DataLoader(
-        st, batch_size=4, shuffle=True, num_workers=4, collate_fn=collate_function
+        st, batch_size=2, shuffle=True, num_workers=2, collate_fn=collate_function
     )
     val_dataset = DataLoader(
         st_val, batch_size=1, shuffle=False, num_workers=1, collate_fn=collate_function
@@ -78,18 +77,17 @@ def train(args):
 
     num_epochs = train_config["num_epochs"]
     step_count = 0
-    
-    
+
     # create directories for saving outputs
     os.makedirs(f"outputs/{args.hyperparam_idx}/objectness/")
     os.makedirs(f"outputs/{args.hyperparam_idx}/object_proposals/")
     os.makedirs(f"outputs/{args.hyperparam_idx}/bb_assignments/")
     os.makedirs(f"outputs/{args.hyperparam_idx}/roi_head_outputs/")
-    
+
     # set hyperparameter index for saving
     faster_rcnn_model.rpn.hyperparam_idx = args.hyperparam_idx
     faster_rcnn_model.roi_heads.hyperparam_idx = args.hyperparam_idx
-    
+
     # save validation images
     if args.hyperparam_idx == 1:
         os.makedirs("outputs/images/", exist_ok=True)
@@ -101,12 +99,12 @@ def train(args):
         rpn_localization_losses = []
         frcnn_classification_losses = []
         frcnn_localization_losses = []
-        
+
         faster_rcnn_model.rpn.val = False
         faster_rcnn_model.roi_heads.val = False
         faster_rcnn_model.rpn.epoch_idx = i
         faster_rcnn_model.roi_heads.epoch_idx = i
-        
+
         for ims, targets, _ in tqdm(train_dataset):
             optimizer.zero_grad()
             for target in targets:
@@ -128,10 +126,10 @@ def train(args):
             loss.backward()
             optimizer.step()
             step_count += 1
-        
+
         faster_rcnn_model.rpn.val = True
         faster_rcnn_model.roi_heads.val = True
-            
+
         for ims, targets, _ in tqdm(val_dataset):
             for target in targets:
                 target["boxes"] = target["bboxes"].float().to(device)
@@ -142,9 +140,9 @@ def train(args):
             loss = batch_losses["loss_classifier"]
             loss += batch_losses["loss_box_reg"]
             loss += batch_losses["loss_rpn_box_reg"]
-            loss += batch_losses["loss_objectness"] 
+            loss += batch_losses["loss_objectness"]
         print("Validation Loss: ", loss.item())
-        
+
         print("Finished epoch {}".format(i))
         torch.save(
             faster_rcnn_model.state_dict(),
@@ -179,18 +177,23 @@ if __name__ == "__main__":
     )
     args = parser.parse_args()
 
-    os.system("rm -r outputs/1/*")
-    os.system("rm -r outputs/2/*")
-    os.system("rm -r outputs/3/*")
-        
+    # os.system("rm -r outputs/1/*")
+    # os.system("rm -r outputs/2/*")
+    # os.system("rm -r outputs/3/*")
+
     # different hyperparameters
     rpn_post_nms_top_n_train_vals = [2000, 1000, 500]
     rpn_fg_iou_thresh_vals = [0.8, 0.7, 0.5]
     rpn_positive_fraction_vals = [0.8, 0.5, 0.3]
-    for i,(x,y,z) in enumerate(zip(rpn_post_nms_top_n_train_vals, rpn_fg_iou_thresh_vals, rpn_positive_fraction_vals)):
+    for i, (x, y, z) in enumerate(
+        zip(
+            rpn_post_nms_top_n_train_vals,
+            rpn_fg_iou_thresh_vals,
+            rpn_positive_fraction_vals,
+        )
+    ):
         args.rpn_post_nms_top_n_train = x
         args.rpn_fg_iou_thresh = y
         args.rpn_positive_fraction = z
-        args.hyperparam_idx = i+1
+        args.hyperparam_idx = i + 1
         train(args)
-        break

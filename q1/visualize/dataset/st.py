@@ -25,14 +25,11 @@ class SceneTextDataset(Dataset):
         print(self.idx2label)
         self.images = glob.glob(os.path.join(self.im_dir, '*.jpg')) 
         self.annotations = [os.path.join(self.ann_dir, os.path.basename(im) + '.json') for im in self.images]
-        
-        # if(split == 'train'):
-        #     self.images = self.images[:int(0.8*len(self.images))]
-        #     self.annotations = self.annotations[:int(0.8*len(self.annotations))]
+
         if(split == 'train'):
-            self.images = self.images[:30]
-            self.annotations = self.annotations[:30]
-        if(split == 'val'):
+            self.images = self.images[:int(0.8*len(self.images))]
+            self.annotations = self.annotations[:int(0.8*len(self.annotations))]
+        elif(split == 'val'):
             self.images = self.images[int(0.8*len(self.images)):int(0.8*len(self.images)) + 4]
             self.annotations = self.annotations[int(0.8*len(self.annotations)):int(0.8*len(self.annotations)) + 4]
         else:

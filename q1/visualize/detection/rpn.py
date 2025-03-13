@@ -397,7 +397,7 @@ class RegionProposalNetwork(torch.nn.Module):
             labels, matched_gt_boxes = self.assign_targets_to_anchors(anchors, targets)
             
             # save matched_gt_boxes
-            if self.val and self.hyperparam_idx == 1 and self.epoch_idx == 0:
+            if self.val and self.epoch_idx == 0:
                 # print(f"{len(anchors)=}")
                 # print(f"{len(labels)=}")
                 # print(f"{len(matched_gt_boxes)=}")
@@ -405,7 +405,7 @@ class RegionProposalNetwork(torch.nn.Module):
                 # print(f"{matched_gt_boxes[0].shape=}")
                 
                 labels_per_image = labels[0]
-                anchors_copy = anchors[0]
+                anchors_copy = anchors[0].clone()
                 foreground_indices = torch.where(labels_per_image == 1)[0]
                 background_indices = torch.where(labels_per_image == 0)[0]
                 ignore_indices = torch.where(labels_per_image == -1)[0]

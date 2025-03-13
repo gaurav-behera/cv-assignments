@@ -6,6 +6,7 @@ q1/modify/dataset/files/
 q1/modify/st
 q1/modify/samples_tv_r50fpn/
 q2/dataset
+q3/dataset
 __pycache__/
 CV_S25_A3.pdf
 wandb/
