@@ -1,0 +1,5 @@
+data
+CV_S25_A5.pdf
+*.pth
+wandb/
+__pycache__
