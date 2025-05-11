@@ -1,0 +1,13 @@
+q1/visualize/dataset/files/
+q1/visualize/st
+q1/visualize/samples_tv_r50fpn/
+q1/visualize/outputs
+q1/modify/dataset/files/
+q1/modify/st
+q2/dataset
+q3/datasets
+q3/runs
+q3/yolo*
+__pycache__/
+CV_S25_A3.pdf
+wandb/
