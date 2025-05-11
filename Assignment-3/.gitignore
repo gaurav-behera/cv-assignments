@@ -9,5 +9,4 @@ q3/datasets
 q3/runs
 q3/yolo*
 __pycache__/
-CV_S25_A3.pdf
 wandb/
