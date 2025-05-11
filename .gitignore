@@ -1,5 +1,2 @@
-.DS_Store
-wandb/
-__pycache__/
-*.pyc
-dataset/
+.DS_Store/
+
